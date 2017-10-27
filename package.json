@@ -1,0 +1,28 @@
+{
+  "name": "chat-server-assessment",
+  "version": "0.0.1",
+  "description": "a server for a chat room assessment",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "mocha ChatWsServer.spec.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gwokae/chat-server-assessment.git"
+  },
+  "author": "Leonard Lin <gwokae@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gwokae/chat-server-assessment/issues"
+  },
+  "homepage": "https://github.com/gwokae/chat-server-assessment#readme",
+  "dependencies": {
+    "commander": "^2.11.0",
+    "ws": "^3.2.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^4.0.1"
+  }
+}

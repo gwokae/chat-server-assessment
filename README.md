@@ -4,8 +4,8 @@ a server for a chat room assessment
 
 ## Tasks
 
-* [ ] init basic [WS](https://github.com/websockets/ws) support
-* [ ] init tests
+* [X] init basic [WS](https://github.com/websockets/ws) support
+* [X] init tests
 * [ ] init users db
 * [ ] init messages transmittion
 * [ ] implement inactivity behavior
