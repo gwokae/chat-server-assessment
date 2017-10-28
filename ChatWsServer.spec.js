@@ -3,11 +3,15 @@ const { describe, it } = require('mocha');
 const { expect } = require('chai');
 const ChatWsServer = require('./ChatWsServer');
 
-describe('Test WebSocket Server', () => {
+describe('WebSocket Server', () => {
   const server = new ChatWsServer();
-  server.init();
   let client;
-  it('WS Connectable', (done) => {
+  it('connect return a promise object', () => {
+    const connectPromise = server.connect();
+    expect(connectPromise).to.be.a('promise');
+  });
+
+  it('able to connect server with 6613 port (default port)', (done) => {
     client = new WebSocket('ws://127.0.0.1:6613');
     client.on('open', done);
   });

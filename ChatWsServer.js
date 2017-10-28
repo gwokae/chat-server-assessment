@@ -11,23 +11,30 @@ class ChatWsServer {
     Object.assign(this.config, defaultConfig, config);
   }
 
-  init() {
-    let { port } = this.config;
-    console.log(`Init ChatWsServer on 0.0.0.0:${port}`);
-    this.server = new WebSocket.Server({ port });
-
-    this.server.on('connection', (ws, req) => {
-      send(ws, { msg: 'hello world' });
-      ws.on('message', (message) => {
-        console.log('received: %s', message);
+  connect() {
+    if (!this.server) {
+      let { port } = this.config;
+      this.connectPromise = new Promise((resolve) => {
+        console.log(`Init ChatWsServer on 0.0.0.0:${port}`);
+        this.server = new WebSocket.Server({ port });
+        this.connectPromise = null;
+        this.server.on('connection', (ws, req) => {
+          send(ws, { type: 'init' });
+        });
+        resolve(this.server);
       });
-    });
+    }
+    return this.connectPromise || Promise.resolve(this.server);
   }
 
   close() {
-    return new Promise((resolve) => {
-      this.server.close(resolve);
-    });
+    if (this.server) {
+      return new Promise((resolve) => {
+        this.server.close(resolve);
+        this.server = null;
+      });
+    }
+    return Promise.resolve();
   }
 }
 
