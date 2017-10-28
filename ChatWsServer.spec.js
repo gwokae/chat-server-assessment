@@ -7,8 +7,8 @@ describe('WebSocket Server', () => {
   const server = new ChatWsServer();
   let client;
   it('connect return a promise object', () => {
-    const connectPromise = server.connect();
-    expect(connectPromise).to.be.a('promise');
+    const startPromise = server.start();
+    expect(startPromise).to.be.a('promise');
   });
 
   it('able to connect server with 6613 port (default port)', (done) => {

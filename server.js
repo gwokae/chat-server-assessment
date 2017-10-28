@@ -6,4 +6,4 @@ const arg = require('commander')
 const ChatWsServer = require('./ChatWsServer');
 
 const server = new ChatWsServer(arg);
-server.connect();
+server.start();

@@ -6,7 +6,7 @@ a server for a chat room assessment
 
 * [X] init basic [WS](https://github.com/websockets/ws) support
 * [X] init tests
-* [ ] init users db
+* [X] init users db
 * [ ] init messages transmittion
 * [ ] implement inactivity behavior
 * [ ] implement disconnect behavior
