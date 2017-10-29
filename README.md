@@ -1,6 +1,30 @@
 # chat-server-assessment
-a server for a chat room assessment
 
+A server for a chat room assessment
+
+**only tested on node @ `v8.6.0`**
+
+## Install
+
+```
+git clone https://github.com/gwokae/chat-server-assessment.git
+cd chat-server-assessment
+npm i
+```
+
+## Start chat server
+
+```
+npm start
+```
+
+### Spcify settings
+
+We only have `port` and `timeout` settings. These settins can configure via cli arguments.
+
+```
+npm start -- --port 6780 --timeout 10
+```
 
 ## Tasks
 
