@@ -39,14 +39,14 @@ class ChatWsServer {
 
   onConnect(ws) {
     send(ws, { type: 'init' });
-    let user = {};
+    let user = { active: true };
     this.users.push(user);
     ws.on('message', (msg) => {
       try {
         const data = JSON.parse(msg);
         this.onMessage(ws, data, user, (userInfo) => {
-          if (userInfo.nickname !== user.nickname) {
-            this.broadcast({ type: 'system', message: `${userInfo.nickname} was disconnected` });
+          if (userInfo.nickname && userInfo.nickname !== user.nickname) {
+            this.broadcast({ type: 'system', message: `${userInfo.nickname} had entered.` });
           }
           Object.assign(user, userInfo);
         });
@@ -54,6 +54,7 @@ class ChatWsServer {
         send(ws, { error: `unable to parse message "${msg}", error: "${JSON.stringify(e)}"` });
       }
     });
+    ws.on('close', (...all) => console.log(all));
   }
 
   onMessage(ws, data, user, updateCurrentUser) {
@@ -61,6 +62,12 @@ class ChatWsServer {
     switch (type) {
       case 'login':
         this.login(ws, data, user, updateCurrentUser);
+        break;
+      case 'logout':
+        updateCurrentUser({ active: false });
+        send(ws, { type: 'logout', reason: 'User logged out' });
+        ws.close();
+        this.broadcast({ type: 'system', message: `${user.nickname} had leave.` });
         break;
       default:
         send(ws, { error: `unsupported message type ${type}` });
