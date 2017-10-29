@@ -49,7 +49,7 @@ class ChatWsServer {
     let checkInactiveId = setInterval(() => {
       let diff = this.config.timeout - ((Date.now() - last) / 1000);
       if (diff < 0) {
-        this.logout(ws, { reason: `inactive excees ${this.config.timeout}s.` }, user, updateCurrentUser);
+        this.logout(ws, { reason: `Inactive after ${this.config.timeout}s.` }, user, updateCurrentUser);
         clearInterval(checkInactiveId);
       } else if (diff < 10 && Math.ceil(diff) % 5 === 0) {
         send(ws, {
@@ -136,7 +136,7 @@ class ChatWsServer {
 
   logout(ws, data, user, updateCurrentUser) {
     updateCurrentUser({ active: false });
-    send(ws, { type: 'logout', reason: data.reason || 'User logged out' });
+    send(ws, { type: 'logout', reason: data.reason });
     ws.close();
 
     const text = data.reason ?
