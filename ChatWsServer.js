@@ -46,7 +46,12 @@ class ChatWsServer {
         const data = JSON.parse(msg);
         this.onMessage(ws, data, user, (userInfo) => {
           if (userInfo.nickname && userInfo.nickname !== user.nickname) {
-            this.broadcast({ type: 'system', message: `${userInfo.nickname} had entered.` });
+            this.broadcast({
+              type: 'message',
+              data: {
+                type: 'system', text: `${userInfo.nickname} had entered.`, timestamp: Date.now(),
+              },
+            });
           }
           Object.assign(user, userInfo);
         });
@@ -58,7 +63,7 @@ class ChatWsServer {
   }
 
   onMessage(ws, data, user, updateCurrentUser) {
-    const { type } = data;
+    const { type, text } = data;
     switch (type) {
       case 'login':
         this.login(ws, data, user, updateCurrentUser);
@@ -67,7 +72,21 @@ class ChatWsServer {
         updateCurrentUser({ active: false });
         send(ws, { type: 'logout', reason: 'User logged out' });
         ws.close();
-        this.broadcast({ type: 'system', message: `${user.nickname} had leave.` });
+        this.broadcast({
+          type: 'message',
+          data: {
+            type: 'system', text: `${user.nickname} had leave.`, timestamp: Date.now(),
+          },
+        });
+        break;
+      case 'message':
+        send(ws, { type, accepted: true });
+        this.broadcast({
+          type,
+          data: {
+            type, text, nickname: user.nickname, timestamp: Date.now(),
+          },
+        });
         break;
       default:
         send(ws, { error: `unsupported message type ${type}` });
