@@ -8,9 +8,9 @@ a server for a chat room assessment
 * [X] init tests
 * [X] init users db
 * [X] init messages transmittion
-* [ ] implement inactivity behavior
-* [ ] implement disconnect behavior
-* [ ] implement avoid nickname duplication
+* [X] implement inactivity behavior
+* [X] implement disconnect behavior
+* [X] implement avoid nickname duplication
 * [ ] check data validity (? item #5 in the spec)
 * [ ] graceful shutdown (on SIGINT or SIGTERM)
 

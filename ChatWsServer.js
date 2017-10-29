@@ -3,6 +3,7 @@ const WebSocket = require('ws');
 const send = (ws, obj) => (ws.send(JSON.stringify(obj)));
 const defaultConfig = {
   port: 6613,
+  timeout: 30,
 };
 
 class ChatWsServer {
@@ -41,25 +42,39 @@ class ChatWsServer {
     send(ws, { type: 'init' });
     let user = { active: true };
     this.users.push(user);
+    const updateCurrentUser = (userInfo) => {
+      Object.assign(user, userInfo);
+    };
+    let last;
+    let checkInactiveId = setInterval(() => {
+      let diff = this.config.timeout - ((Date.now() - last) / 1000);
+      if (diff < 0) {
+        this.logout(ws, { reason: `inactive excees ${this.config.timeout}s.` }, user, updateCurrentUser);
+        clearInterval(checkInactiveId);
+      } else if (diff < 10 && Math.ceil(diff) % 5 === 0) {
+        send(ws, {
+          type: 'message',
+          data: {
+            type: 'system',
+            timestamp: Date.now(),
+            text: `You'll logout within ${Math.ceil(diff)}s. A user will logout after ${this.config.timeout}s idle.`,
+          },
+        });
+      }
+    }, 1000);
     ws.on('message', (msg) => {
+      last = Date.now();
       try {
         const data = JSON.parse(msg);
-        this.onMessage(ws, data, user, (userInfo) => {
-          if (userInfo.nickname && userInfo.nickname !== user.nickname) {
-            this.broadcast({
-              type: 'message',
-              data: {
-                type: 'system', text: `${userInfo.nickname} had entered.`, timestamp: Date.now(),
-              },
-            });
-          }
-          Object.assign(user, userInfo);
-        });
+        this.onMessage(ws, data, user, updateCurrentUser);
       } catch (e) {
         send(ws, { error: `unable to parse message "${msg}", error: "${JSON.stringify(e)}"` });
       }
     });
-    ws.on('close', (...all) => console.log(all));
+    ws.on('close', (...all) => {
+      console.log(all);
+      clearInterval(checkInactiveId);
+    });
   }
 
   onMessage(ws, data, user, updateCurrentUser) {
@@ -69,15 +84,7 @@ class ChatWsServer {
         this.login(ws, data, user, updateCurrentUser);
         break;
       case 'logout':
-        updateCurrentUser({ active: false });
-        send(ws, { type: 'logout', reason: 'User logged out' });
-        ws.close();
-        this.broadcast({
-          type: 'message',
-          data: {
-            type: 'system', text: `${user.nickname} had leave.`, timestamp: Date.now(),
-          },
-        });
+        this.logout(ws, data, user, updateCurrentUser);
         break;
       case 'message':
         send(ws, { type, accepted: true });
@@ -105,6 +112,13 @@ class ChatWsServer {
         updateCurrentUser({ nickname });
         resp.accepted = true;
         resp.nickname = nickname;
+
+        this.broadcast({
+          type: 'message',
+          data: {
+            type: 'system', text: `${user.nickname} had entered.`, timestamp: Date.now(),
+          },
+        });
       }
       send(ws, resp);
     };
@@ -118,6 +132,23 @@ class ChatWsServer {
     } else {
       sendResp(`attribute 'nickname' not given. data: "${JSON.stringify(data)}"`);
     }
+  }
+
+  logout(ws, data, user, updateCurrentUser) {
+    updateCurrentUser({ active: false });
+    send(ws, { type: 'logout', reason: data.reason || 'User logged out' });
+    ws.close();
+
+    const text = data.reason ?
+      `${user.nickname} was disconnected due to inactivity` :
+      `${user.nickname} left the chat, connection lost`;
+
+    this.broadcast({
+      type: 'message',
+      data: {
+        type: 'system', text, timestamp: Date.now(),
+      },
+    });
   }
 
   broadcast(data) {
