@@ -144,6 +144,7 @@ class ChatWsServer {
   }
 
   logout(ws, data, user, updateCurrentUser) {
+    if (!user.active) return;
     updateCurrentUser({ active: false });
     send(ws, { type: 'logout', reason: data.reason });
     ws.close();
