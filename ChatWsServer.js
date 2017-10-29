@@ -38,7 +38,7 @@ class ChatWsServer {
   }
 
   onConnect(ws) {
-    send(ws, { type: 'init', users: this.users });
+    send(ws, { type: 'init' });
     let user = {};
     this.users.push(user);
     ws.on('message', (msg) => {
@@ -69,16 +69,28 @@ class ChatWsServer {
 
   login(ws, data, user, updateCurrentUser) {
     const { nickname } = data;
+    const sendResp = (error) => {
+      let resp = { type: 'login' };
+      if (error) {
+        resp.accepted = false;
+        resp.error = error;
+      } else {
+        this.users.push(nickname);
+        updateCurrentUser({ nickname });
+        resp.accepted = true;
+        resp.nickname = nickname;
+      }
+      send(ws, resp);
+    };
+
     if (user.nickname) {
-      send(ws, { error: 'You already login. No multiple login allowed.' });
+      sendResp('You already login. No multiple login allowed.');
     } else if (this.users.filter(u => u.nickname === nickname).length > 0) {
-      send(ws, { error: 'Failed to connect. Nickname already taken.' });
+      sendResp('Failed to connect. Nickname already taken.');
     } else if (nickname) {
-      this.users.push(nickname);
-      updateCurrentUser({ nickname });
-      send(ws, { accepted: 'ok', nickname });
+      sendResp(null);
     } else {
-      send(ws, { error: `attribute 'nickname' not given. data: "${JSON.stringify(data)}"` });
+      sendResp(`attribute 'nickname' not given. data: "${JSON.stringify(data)}"`);
     }
   }
 
