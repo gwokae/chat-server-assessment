@@ -6,6 +6,6 @@ const arg = require('commander')
   .parse(process.argv);
 
 const ChatWsServer = require('./ChatWsServer');
-console.log(arg);
+
 const server = new ChatWsServer(arg);
 server.start();

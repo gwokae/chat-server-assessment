@@ -2,7 +2,7 @@
 
 A server for a chat room assessment
 
-**only tested on node @ `v8.6.0`**
+**only tested on node @ `v8.6.0` & `v6.7.0`**
 
 ## Install
 

@@ -1,6 +1,11 @@
 const WebSocket = require('ws');
 
-const send = (ws, obj) => (ws.send(JSON.stringify(obj)));
+const send = (ws, obj) => {
+  if (ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify(obj));
+  }
+};
+
 const defaultConfig = {
   port: 6613,
   timeout: 30,
