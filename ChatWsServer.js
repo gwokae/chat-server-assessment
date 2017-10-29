@@ -11,6 +11,7 @@ class ChatWsServer {
     this.config = {};
     Object.assign(this.config, defaultConfig, config);
     this.onConnect = this.onConnect.bind(this);
+    this.beforeShutdown = this.beforeShutdown.bind(this);
     this.users = [];
   }
 
@@ -25,6 +26,9 @@ class ChatWsServer {
         resolve(this.server);
       });
     }
+
+    process.on('SIGINT', this.beforeShutdown);
+    process.on('SIGTERM', this.beforeShutdown);
     return this.connectPromise || Promise.resolve(this.server);
   }
 
@@ -157,6 +161,14 @@ class ChatWsServer {
         send(client, data);
       }
     });
+  }
+
+  beforeShutdown() {
+    this.broadcast({
+      type: 'logout', reason: 'Process got SIGINT or SIGTERM signal',
+    });
+
+    process.exit(0);
   }
 }
 

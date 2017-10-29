@@ -11,8 +11,8 @@ a server for a chat room assessment
 * [X] implement inactivity behavior
 * [X] implement disconnect behavior
 * [X] implement avoid nickname duplication
-* [ ] check data validity (? item #5 in the spec)
-* [ ] graceful shutdown (on SIGINT or SIGTERM)
+* [ ] check data validity (???? item #5 in the spec)
+* [X] graceful shutdown (on SIGINT or SIGTERM)
 
 ## Author
 
